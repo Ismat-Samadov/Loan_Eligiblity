@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Prediction</title>
+    <title>Loan Eligibility Prediction</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -19,11 +19,21 @@
             <label for="loanAmount">Loan Amount:</label>
             <input type="number" id="loanAmount" name="loanAmount" required>
 
-            <label for="loanAmountTerm">Loan Amount Term:</label>
-            <input type="number" id="loanAmountTerm" name="loanAmountTerm" required>
+            <label for="loanAmountTerm">Loan Amount Term (in months):</label>
+            <select id="loanAmountTerm" name="loanAmountTerm">
+                <option value="360">360 (30 years)</option>
+                <option value="300">300 (25 years)</option>
+                <option value="240">240 (20 years)</option>
+                <option value="180">180 (15 years)</option>
+                <option value="120">120 (10 years)</option>
+                <option value="60">60 (5 years)</option>
+            </select>
 
-            <label for="creditHistory">Credit History (1 = Yes, 0 = No):</label>
-            <input type="number" id="creditHistory" name="creditHistory" min="0" max="1" required>
+            <label for="creditHistory">Credit History (1 = Good, 0 = Bad):</label>
+            <select id="creditHistory" name="creditHistory">
+                <option value="1">1 - Good</option>
+                <option value="0">0 - Bad</option>
+            </select>
 
             <label for="gender">Gender:</label>
             <select id="gender" name="gender">
@@ -38,7 +48,12 @@
             </select>
 
             <label for="dependents">Dependents:</label>
-            <input type="text" id="dependents" name="dependents" required>
+            <select id="dependents" name="dependents">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3+">3+</option>
+            </select>
 
             <label for="education">Education:</label>
             <select id="education" name="education">

@@ -1,31 +1,26 @@
 from flask import Flask, request, jsonify
-import pandas as pd
-import numpy as np
-from sklearn.preprocessing import MinMaxScaler
 import pickle
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
 
-# Initialize Flask app
 app = Flask(__name__)
 
 # Load the model and scaler
-model_path = 'model/best_rf_model.pkl'
-scaler_path = 'model/scaler.pkl'
+def load_model():
+    with open('model/best_rf_model.pkl', 'rb') as model_file, open('model/scaler.pkl', 'rb') as scaler_file:
+        model = pickle.load(model_file)
+        scaler = pickle.load(scaler_file)
+    return model, scaler
 
-def load_model(file_path):
-    with open(file_path, 'rb') as file:
-        return pickle.load(file)
-
-# Load model and scaler
-model = load_model(model_path)
-scaler = load_model(scaler_path)
-
-# Prediction function
+# Predict loan status
 def predict_loan_status(applicant_income, coapplicant_income, loan_amount, loan_amount_term, 
                         credit_history, gender, married, dependents, education, self_employed, property_area, 
-                        threshold=0.5):
-    # Map the dependents value to be consistent with training data
+                        model, scaler, threshold=0.5):
+
+    # Adjust dependents encoding
     if dependents == '3':
-        dependents = '3+'  # Match the training data encoding
+        dependents = '3+'
     
     # Create a DataFrame with the input values
     input_data = pd.DataFrame({
@@ -42,70 +37,86 @@ def predict_loan_status(applicant_income, coapplicant_income, loan_amount, loan_
         'Property_Area': [property_area]
     })
 
-    # Apply transformations used during training
+    # Apply transformations
     input_data['ApplicantIncome'] = np.sqrt(input_data['ApplicantIncome'])
     input_data['CoapplicantIncome'] = np.sqrt(input_data['CoapplicantIncome'])
     input_data['LoanAmount'] = np.sqrt(input_data['LoanAmount'])
     
-    # Apply one-hot encoding (must be the same as during training)
+    # Apply one-hot encoding
     input_data = pd.get_dummies(input_data)
-    
-    # Add missing columns that were present during training
+
+    # Expected columns
     expected_columns = [
         'ApplicantIncome', 'CoapplicantIncome', 'LoanAmount', 'Loan_Amount_Term', 'Credit_History',
         'Gender', 'Married', 'Dependents_0', 'Dependents_1', 'Dependents_2', 'Dependents_3+', 
         'Education', 'Self_Employed', 'Property_Area_Rural', 'Property_Area_Semiurban', 'Property_Area_Urban'
     ]
-    
+
+    # Add missing columns
     for col in expected_columns:
         if col not in input_data.columns:
             input_data[col] = 0  # Add missing columns with 0
-    
+
     # Reorder columns to match the model input
     input_data = input_data[expected_columns]
     
-    # Normalize the input data using MinMaxScaler
+    # Normalize the input data using the saved MinMaxScaler
     input_data_scaled = scaler.transform(input_data)
 
-    # Make the prediction and check probabilities
-    prediction_prob = model.predict_proba(input_data_scaled)[:, 1]  # Get probability of being "Approved"
-    
-    # Apply a custom threshold to the probability
+    # Make prediction
+    prediction_prob = model.predict_proba(input_data_scaled)[:, 1]
     prediction = (prediction_prob >= threshold).astype(int)
     
-    # Return both the loan status and probability
     loan_status = "Approved" if prediction[0] == 1 else "Rejected"
-    return loan_status, prediction_prob[0]
+    approval_probability = prediction_prob[0]
+    
+    return loan_status, approval_probability
 
-# API endpoint to predict loan status
+# API Endpoint
 @app.route('/predict', methods=['POST'])
 def predict():
+    # Extract data from request
     data = request.json
-    
-    # Extract input values from JSON request
-    applicant_income = data['ApplicantIncome']
-    coapplicant_income = data['CoapplicantIncome']
-    loan_amount = data['LoanAmount']
-    loan_amount_term = data['Loan_Amount_Term']
-    credit_history = data['Credit_History']
-    gender = data['Gender']
-    married = data['Married']
-    dependents = data['Dependents']
-    education = data['Education']
-    self_employed = data['Self_Employed']
-    property_area = data['Property_Area']
-    
-    # Predict loan status and probability
-    loan_status, prob = predict_loan_status(applicant_income, coapplicant_income, loan_amount, loan_amount_term,
-                                            credit_history, gender, married, dependents, education, 
-                                            self_employed, property_area)
-    
-    # Return the prediction and probability as a JSON response
+    applicant_income = data.get('applicant_income')
+    coapplicant_income = data.get('coapplicant_income')
+    loan_amount = data.get('loan_amount')
+    loan_amount_term = data.get('loan_amount_term')
+    credit_history = data.get('credit_history')
+    gender = data.get('gender')
+    married = data.get('married')
+    dependents = data.get('dependents')
+    education = data.get('education')
+    self_employed = data.get('self_employed')
+    property_area = data.get('property_area')
+
+    # Load model and scaler
+    model, scaler = load_model()
+
+    # Call prediction function
+    loan_status, approval_probability = predict_loan_status(
+        applicant_income, coapplicant_income, loan_amount, loan_amount_term,
+        credit_history, gender, married, dependents, education, self_employed, property_area,
+        model, scaler
+    )
+
+    # Return the prediction, probability, and input data as the response
     return jsonify({
-        'loan_status': loan_status,
-        'approval_probability': round(prob, 4)  # Rounded to 4 decimal places
+        "approval_probability": round(approval_probability, 3),
+        "loan_status": loan_status,
+        "input_data": {
+            "applicant_income": applicant_income,
+            "coapplicant_income": coapplicant_income,
+            "loan_amount": loan_amount,
+            "loan_amount_term": loan_amount_term,
+            "credit_history": credit_history,
+            "gender": gender,
+            "married": married,
+            "dependents": dependents,
+            "education": education,
+            "self_employed": self_employed,
+            "property_area": property_area
+        }
     })
 
-# Run the Flask app
 if __name__ == '__main__':
     app.run(debug=True)

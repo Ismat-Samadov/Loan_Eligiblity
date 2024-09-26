@@ -1,39 +1,36 @@
-document.getElementById('loanForm').addEventListener('submit', function (e) {
-    e.preventDefault(); // Prevent the form from submitting the default way
-
-    // Gather form data
-    const formData = {
-        ApplicantIncome: document.getElementById('applicantIncome').value,
-        CoapplicantIncome: document.getElementById('coapplicantIncome').value,
-        LoanAmount: document.getElementById('loanAmount').value,
-        Loan_Amount_Term: document.getElementById('loanAmountTerm').value,
-        Credit_History: document.getElementById('creditHistory').value,
-        Gender: document.getElementById('gender').value,
-        Married: document.getElementById('married').value,
-        Dependents: document.getElementById('dependents').value,
-        Education: document.getElementById('education').value,
-        Self_Employed: document.getElementById('selfEmployed').value,
-        Property_Area: document.getElementById('propertyArea').value
+async function predictLoanStatus() {
+    const data = {
+        applicant_income: 5000,
+        coapplicant_income: 2000,
+        loan_amount: 150,
+        loan_amount_term: 360,
+        credit_history: 1,
+        gender: "Male",
+        married: "Yes",
+        dependents: "0",
+        education: "Graduate",
+        self_employed: "No",
+        property_area: "Urban"
     };
 
-    // Send the data to the backend via POST request
-    fetch('http://127.0.0.1:5000/predict', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-    })
-        .then(response => response.json())
-        .then(data => {
-            // Display the result
-            document.getElementById('result').innerHTML = `
-                <p>Loan Status: <strong>${data.loan_status}</strong></p>
-                <p>Approval Probability: <strong>${(data.approval_probability * 100).toFixed(2)}%</strong></p>
-            `;
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            document.getElementById('result').innerHTML = `<p>Error: ${error.message}</p>`;
+    try {
+        const response = await fetch('http://127.0.0.1:5000/predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
         });
-});
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log(result);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+predictLoanStatus();
