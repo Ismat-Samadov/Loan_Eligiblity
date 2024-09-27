@@ -8,8 +8,9 @@
 body {
     font-family: 'Arial', sans-serif;
     background: linear-gradient(135deg, #f0f4f8, #d9e8f5);
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
