@@ -31,7 +31,6 @@ def map_and_convert_input(data):
         'Self_Employed': data['self_employed'],
         'Property_Area': data['property_area']
     }
-    
     # If Dependents is '3', we convert it to '3+' as in the training data
     if mapped_data['Dependents'] == '3':
         mapped_data['Dependents'] = '3+'
@@ -39,7 +38,7 @@ def map_and_convert_input(data):
     return mapped_data
 
 # Predict loan status using the saved model
-def predict_loan_status(data, model, scaler, threshold=0.7):
+def predict_loan_status(data, model, scaler, threshold=0.5):
     # Convert input data
     input_data = pd.DataFrame([data])
 

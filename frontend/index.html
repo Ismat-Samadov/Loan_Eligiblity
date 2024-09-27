@@ -5,122 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Status Prediction</title>
     <link rel="stylesheet" href="styles.css">
-
 </head>
 <body>
-    <h1>Loan Status Prediction</h1>
+    <div class="container">
+        <h1>Loan Status Prediction</h1>
 
-    <label for="applicant_income">Applicant Income:</label>
-    <input type="number" id="applicant_income" value="5000">
+        <label for="applicant_income">Applicant Income:</label>
+        <input type="number" id="applicant_income" value="5000">
 
-    <label for="coapplicant_income">Coapplicant Income:</label>
-    <input type="number" id="coapplicant_income" value="2000">
+        <label for="coapplicant_income">Coapplicant Income:</label>
+        <input type="number" id="coapplicant_income" value="2000">
 
-    <label for="loan_amount">Loan Amount:</label>
-    <input type="number" id="loan_amount" value="150">
+        <label for="loan_amount">Loan Amount:</label>
+        <input type="number" id="loan_amount" value="15000">
 
-    <label for="loan_amount_term">Loan Amount Term (in days):</label>
-    <input type="number" id="loan_amount_term" value="360">
+        <label for="loan_amount_term">Loan Amount Term (in days):</label>
+        <input type="number" id="loan_amount_term" value="360">
 
-    <label for="credit_history">Credit History (1: Yes, 0: No):</label>
-    <select id="credit_history">
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-    </select>
+        <label for="credit_history">Credit History (1: Yes, 0: No):</label>
+        <select id="credit_history">
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+        </select>
 
-    <label for="gender">Gender:</label>
-    <select id="gender">
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-    </select>
+        <label for="gender">Gender:</label>
+        <select id="gender">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
 
-    <label for="married">Married:</label>
-    <select id="married">
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-    </select>
+        <label for="married">Married:</label>
+        <select id="married">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
 
-    <label for="dependents">Dependents:</label>
-    <select id="dependents">
-        <option value="0">0</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3+</option>
-    </select>
+        <label for="dependents">Dependents:</label>
+        <select id="dependents">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3+</option>
+        </select>
 
-    <label for="education">Education:</label>
-    <select id="education">
-        <option value="Graduate">Graduate</option>
-        <option value="Not Graduate">Not Graduate</option>
-    </select>
+        <label for="education">Education:</label>
+        <select id="education">
+            <option value="Graduate">Graduate</option>
+            <option value="Not Graduate">Not Graduate</option>
+        </select>
 
-    <label for="self_employed">Self Employed:</label>
-    <select id="self_employed">
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-    </select>
+        <label for="self_employed">Self Employed:</label>
+        <select id="self_employed">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
 
-    <label for="property_area">Property Area:</label>
-    <select id="property_area">
-        <option value="Urban">Urban</option>
-        <option value="Semiurban">Semiurban</option>
-        <option value="Rural">Rural</option>
-    </select>
+        <label for="property_area">Property Area:</label>
+        <select id="property_area">
+            <option value="Urban">Urban</option>
+            <option value="Semiurban">Semiurban</option>
+            <option value="Rural">Rural</option>
+        </select>
 
-    <button id="submit">Submit</button>
+        <button id="submit">Submit</button>
 
-    <div class="result" id="result"></div>
+        <div class="result" id="result"></div>
+    </div>
 
-    <script>
-        document.getElementById('submit').addEventListener('click', function () {
-            const data = {
-                applicant_income: parseFloat(document.getElementById('applicant_income').value),
-                coapplicant_income: parseFloat(document.getElementById('coapplicant_income').value),
-                loan_amount: parseFloat(document.getElementById('loan_amount').value),
-                loan_amount_term: parseFloat(document.getElementById('loan_amount_term').value),
-                credit_history: parseInt(document.getElementById('credit_history').value),
-                gender: document.getElementById('gender').value,
-                married: document.getElementById('married').value,
-                dependents: document.getElementById('dependents').value,
-                education: document.getElementById('education').value,
-                self_employed: document.getElementById('self_employed').value,
-                property_area: document.getElementById('property_area').value
-            };
-
-            fetch('http://127.0.0.1:5000/predict', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-            .then(response => response.json())
-            .then(result => {
-                const output = `
-                    <p>Loan Status: <strong>${result.loan_status}</strong></p>
-                    <p>Approval Probability: <strong>${(result.approval_probability * 100).toFixed(2)}%</strong></p>
-                    <h3>Input Data</h3>
-                    <ul>
-                        <li>Applicant Income: ${result.input_data.ApplicantIncome}</li>
-                        <li>Coapplicant Income: ${result.input_data.CoapplicantIncome}</li>
-                        <li>Loan Amount: ${result.input_data.LoanAmount}</li>
-                        <li>Loan Amount Term: ${result.input_data.Loan_Amount_Term}</li>
-                        <li>Credit History: ${result.input_data.Credit_History}</li>
-                        <li>Gender: ${result.input_data.Gender}</li>
-                        <li>Married: ${result.input_data.Married}</li>
-                        <li>Dependents: ${result.input_data.Dependents}</li>
-                        <li>Education: ${result.input_data.Education}</li>
-                        <li>Self Employed: ${result.input_data.Self_Employed}</li>
-                        <li>Property Area: ${result.input_data.Property_Area}</li>
-                    </ul>
-                `;
-                document.getElementById('result').innerHTML = output;
-            })
-            .catch(error => {
-                document.getElementById('result').innerHTML = `<p style="color:red">Error: ${error.message}</p>`;
-            });
-        });
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
-
