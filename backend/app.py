@@ -10,7 +10,7 @@ CORS(app)  # Enable CORS for cross-origin requests
 
 # Load the model and scaler
 def load_model():
-    with open('model/best_rf_model.pkl', 'rb') as model_file, open('model/scaler.pkl', 'rb') as scaler_file:
+    with open('best_rf_model.pkl', 'rb') as model_file, open('scaler.pkl', 'rb') as scaler_file:
         model = pickle.load(model_file)
         scaler = pickle.load(scaler_file)
     return model, scaler
