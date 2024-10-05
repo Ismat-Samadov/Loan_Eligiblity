@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Status Prediction</title>
-    <link rel="stylesheet" href="styles.css">
+    <!-- Use Flask's url_for() function to link the CSS file -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="container">
@@ -72,6 +73,7 @@
         <div class="result" id="result"></div>
     </div>
 
-    <script src="app.js"></script>
+    <!-- Use Flask's url_for() function to link the JavaScript file -->
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

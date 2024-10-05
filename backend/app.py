@@ -3,10 +3,11 @@ import pickle
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
-app = Flask(__name__, static_folder='../frontend', static_url_path='', template_folder='../frontend')
+# Set up Flask app with default 'static' and 'templates' folder
+app = Flask(__name__)
 CORS(app)  # Enable CORS for cross-origin requests
 
 # Load the model and scaler
@@ -66,7 +67,7 @@ def predict_loan_status(data, model, scaler, threshold=0.5):
     
     return loan_status, approval_probability
 
-# API Endpoint
+# API Endpoint for prediction
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.json
@@ -80,11 +81,11 @@ def predict():
         "input_data": mapped_data
     })
 
-# Route to serve the frontend
+# Serve index.html at root URL
 @app.route('/')
-def serve_index():
-    return send_from_directory(app.static_folder, 'index.html')
+def index():
+    return render_template('index.html')
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5001))
     app.run(host='0.0.0.0', port=port)
