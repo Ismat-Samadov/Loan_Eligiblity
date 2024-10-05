@@ -1,4 +1,5 @@
 document.getElementById('submit').addEventListener('click', function () {
+    // Prepare the input data
     const data = {
         applicant_income: parseFloat(document.getElementById('applicant_income').value),
         coapplicant_income: parseFloat(document.getElementById('coapplicant_income').value),
@@ -13,15 +14,22 @@ document.getElementById('submit').addEventListener('click', function () {
         property_area: document.getElementById('property_area').value
     };
 
-    fetch('https://loan-eligiblity.onrender.com//predict', {
+    // Make the API call to Flask
+    fetch('https://loan-eligiblity.onrender.com/predict', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(result => {
+        // Display the prediction result
         const output = `
             <p>Loan Status: <strong>${result.loan_status}</strong></p>
             <p>Approval Probability: <strong>${(result.approval_probability * 100).toFixed(2)}%</strong></p>
@@ -29,6 +37,7 @@ document.getElementById('submit').addEventListener('click', function () {
         document.getElementById('result').innerHTML = output;
     })
     .catch(error => {
+        // Handle errors in case of failed API request
         document.getElementById('result').innerHTML = `<p style="color:red">Error: ${error.message}</p>`;
     });
 });
